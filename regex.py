@@ -102,7 +102,37 @@ class OrRegex(Regex):
     def __str__(self):
         return "(({})|({}))".format(self.children[0],self.children[1])
     def transformToNFA(self):
-        pass
+        # 获取两个子正则表达式的 NFA
+        nfa1 = self.children[0].transformToNFA()
+        nfa2 = self.children[1].transformToNFA()
+
+        # 创建一个新的 NFA
+        or_nfa = NFA()
+
+        # 将两个子 NFA 的状态添加到新 NFA 中
+        state_mapping1 = or_nfa.addStatesFrom(nfa1)
+        state_mapping2 = or_nfa.addStatesFrom(nfa2)
+
+        # 创建新的起始状态和接受状态
+        new_start_state = State(len(or_nfa.states))
+        or_nfa.states.append(new_start_state)
+        or_nfa.startS = new_start_state.id
+
+        # 从新的起始状态添加 epsilon 转换指向两个子 NFA 的起始状态
+        or_nfa.addTransition(new_start_state, or_nfa.states[state_mapping1[nfa1.states[0].id]], '&')
+        or_nfa.addTransition(new_start_state, or_nfa.states[state_mapping2[nfa2.states[0].id]], '&')
+
+        # 合并两个子 NFA 的接受状态
+        for state_id, is_accepting in nfa1.is_accepting.items():
+            mapped_state_id = state_mapping1[state_id]
+            or_nfa.is_accepting[mapped_state_id] = is_accepting
+
+        for state_id, is_accepting in nfa2.is_accepting.items():
+            mapped_state_id = state_mapping2[state_id]
+            or_nfa.is_accepting[mapped_state_id] = is_accepting
+        
+
+        return or_nfa
     pass
 
 class SymRegex(Regex):

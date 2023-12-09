@@ -91,6 +91,31 @@ class NFA:
     #         return False
     # pass
 
+    # def isStringInLanguage(self, string):
+    #     queue = [(self.states[0], 0)]
+    #     visited = set()
+        
+    #     while queue:
+    #         currS, pos = queue.pop(0)
+    #         visited.add((currS.id, pos))
+    #         if pos == len(string):
+    #             if currS.id in self.is_accepting and self.is_accepting[currS.id]:
+    #                 return True
+    #             for n in self.epsilonClose([currS]):
+    #                 if (n.id, pos) not in visited:
+    #                     queue.append((n, pos))
+    #             continue
+
+    #         if string[pos] in currS.transition:
+    #             for stat in currS.transition[string[pos]]:
+    #                 if (stat.id, pos + 1) not in visited:
+    #                     queue.append((stat, pos + 1))
+    #                     for s in self.epsilonClose([stat]):
+    #                         if (s.id, pos + 1) not in visited:
+    #                             queue.append((s, pos + 1))
+
+    #     return False
+    
     def isStringInLanguage(self, string):
         queue = [(self.states[0], 0)]
         visited = set()
@@ -98,6 +123,7 @@ class NFA:
         while queue:
             currS, pos = queue.pop(0)
             visited.add((currS.id, pos))
+
             if pos == len(string):
                 if currS.id in self.is_accepting and self.is_accepting[currS.id]:
                     return True

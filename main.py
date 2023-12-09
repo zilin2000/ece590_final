@@ -22,9 +22,10 @@ def equivalent(re1, re2):
 
 if __name__ == "__main__":
     def testNFA(strRe, s, expected):
-        res = parse_re(strRe)
+        re = parse_re(strRe)
         # test your nfa conversion
-        nfa = res.transformToNFA()
+        nfa = re.transformToNFA()
+        res = nfa.isStringInLanguage(s)
         if res == expected:
             print(strRe, " gave ",res, " as expected on ", s)
         else:
@@ -85,10 +86,10 @@ if __name__ == "__main__":
     testNFA('a*', 'aaa', True)
 
     # test for OrRegex
-    # testNFA('a|b', '', False)
-    # testNFA('a|b', 'a', True)
-    # testNFA('a|b', 'b', True)
-    # testNFA('a|b', 'ab', False)
+    testNFA('a|b', '', False)
+    testNFA('a|b', 'a', True)
+    testNFA('a|b', 'b', True)
+    testNFA('a|b', 'ab', False)
 
     # testNFA('ab|cd', '', False)
     # testNFA('ab|cd', 'ab', True)
