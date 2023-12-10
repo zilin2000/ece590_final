@@ -114,7 +114,7 @@ class OrRegex(Regex):
         state_mapping2 = or_nfa.addStatesFrom(nfa2)
 
         # 创建新的起始状态和接受状态
-        new_start_state = State(len(or_nfa.states))
+        new_start_state = State(0)
         or_nfa.states.append(new_start_state)
         or_nfa.startS = new_start_state.id
 

@@ -61,35 +61,35 @@ class NFA:
                         states.append(s)
         return states
     # It takes a string and returns True if the string is in the language of this NFA
-    # def isStringInLanguage(self, string):
-    #     queue = [(self.states[0], 0)]
-    #     currS = self.states[0]
-    #     pos = 0
-    #     visited = []
-    #     while queue:
-    #         currS, pos = queue.pop()
-    #         if pos == len(string):
-    #             if currS.id in self.is_accepting and self.is_accepting[currS.id]:
-    #                 return self.is_accepting[currS.id]
-    #             for n in self.epsilonClose([currS]):
-    #                 queue.append((n, pos))
-    #             continue
-    #         for s in self.states:
-    #             if s.id == currS.id:
-    #                 if string[pos] in s.transition:
-    #                     stats = s.transition[string[pos]]
-    #                     for stat in stats:
-    #                         queue.extend([(stat,pos+1)])
-    #                         queue.extend([(s,pos+1) for s in self.epsilonClose([stat])])
-    #                 else:
-    #                     for n in self.epsilonClose([currS]):
-    #                         queue.append((n, pos))
-    #                 break
-    #     if pos == len(string):
-    #         return currS.id in self.is_accepting and self.is_accepting[currS.id]
-    #     else:
-    #         return False
-    # pass
+    def problematic(self, string):
+        queue = [(self.states[0], 0)]
+        currS = self.states[0]
+        pos = 0
+        visited = []
+        while queue:
+            currS, pos = queue.pop()
+            if pos == len(string):
+                if currS.id in self.is_accepting and self.is_accepting[currS.id]:
+                    return self.is_accepting[currS.id]
+                for n in self.epsilonClose([currS]):
+                    queue.append((n, pos))
+                continue
+            for s in self.states:
+                if s.id == currS.id:
+                    if string[pos] in s.transition:
+                        stats = s.transition[string[pos]]
+                        for stat in stats:
+                            queue.extend([(stat,pos+1)])
+                            queue.extend([(s,pos+1) for s in self.epsilonClose([stat])])
+                    else:
+                        for n in self.epsilonClose([currS]):
+                            queue.append((n, pos))
+                    break
+        if pos == len(string):
+            return currS.id in self.is_accepting and self.is_accepting[currS.id]
+        else:
+            return False
+    pass
 
     # def isStringInLanguage(self, string):
     #     queue = [(self.states[0], 0)]
@@ -116,29 +116,59 @@ class NFA:
 
     #     return False
     
-    def isStringInLanguage(self, string):
-        queue = [(self.states[0], 0)]
-        visited = set()
+    # def isStringInLanguage(self, string):
+    #     queue = [(self.states[0], 0)]
+    #     visited = set()
         
-        while queue:
-            currS, pos = queue.pop(0)
-            visited.add((currS.id, pos))
+    #     while queue:
+    #         currS, pos = queue.pop(0)
+    #         visited.add((currS.id, pos))
 
-            if pos == len(string):
-                if currS.id in self.is_accepting and self.is_accepting[currS.id]:
-                    return True
-                for n in self.epsilonClose([currS]):
-                    if (n.id, pos) not in visited:
-                        queue.append((n, pos))
-                continue
+    #         if pos == len(string):
+    #             if currS.id in self.is_accepting and self.is_accepting[currS.id]:
+    #                 return True
+    #             for n in self.epsilonClose([currS]):
+    #                 if (n.id, pos) not in visited:
+    #                     queue.append((n, pos))
+    #             continue
 
-            if string[pos] in currS.transition:
-                for stat in currS.transition[string[pos]]:
-                    if (stat.id, pos + 1) not in visited:
-                        queue.append((stat, pos + 1))
-                        for s in self.epsilonClose([stat]):
-                            if (s.id, pos + 1) not in visited:
-                                queue.append((s, pos + 1))
+    #         if string[pos] in currS.transition:
+    #             for stat in currS.transition[string[pos]]:
+    #                 if (stat.id, pos + 1) not in visited:
+    #                     queue.append((stat, pos + 1))
+    #                     for s in self.epsilonClose([stat]):
+    #                         if (s.id, pos + 1) not in visited:
+    #                             queue.append((s, pos + 1))
+
+    #     return False
+
+    def isStringInLanguage(self, input_string):
+        # Initialize the processing queue with the starting state and initial position in the input string
+        process_queue = [(self.states[self.startS], 0)]
+        already_visited = set()
+
+        while process_queue:
+            current_state, position = process_queue.pop(0)
+
+            # Check for acceptance if at the end of the string
+            if position == len(input_string) and current_state.id in self.is_accepting:
+                return True
+
+            # Process character transitions if not at the end of the string
+            if position < len(input_string):
+                next_char = input_string[position]
+                for next_state in current_state.transition.get(next_char, []):
+                    next_pos = position + 1
+                    if (next_state.id, next_pos) not in already_visited:
+                        process_queue.append((next_state, next_pos))
+                        already_visited.add((next_state.id, next_pos))
+
+            # Process epsilon transitions
+            for epsilon_state in self.epsilonClose([current_state]):
+                if (epsilon_state.id, position) not in already_visited:
+                    process_queue.append((epsilon_state, position))
+                    already_visited.add((epsilon_state.id, position))
 
         return False
+
 
